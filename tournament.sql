@@ -6,6 +6,13 @@
 -- You can write comments in this file by starting them with two dashes, like
 -- these lines here.
 
+-- DROP DATABASE IF EXISTS
+DROP DATABASE IF EXISTS tournament;
+
+CREATE DATABASE tournament;
+
+--connect to database
+\c tournament;
 
 -- DROP VIEW IF EXISTS
 DROP VIEW IF EXISTS standings;
@@ -14,8 +21,9 @@ DROP VIEW IF EXISTS opponent_standings;
 -- DROP old Tables IF EXISTS
 DROP TABLE IF EXISTS tournament;
 DROP TABLE IF EXISTS match;
-DROP TABLE IF EXISTS player;
 DROP TABLE IF EXISTS result;
+DROP TABLE IF EXISTS player;
+
 
 CREATE TABLE tournament (
   id serial PRIMARY KEY,
@@ -32,15 +40,10 @@ CREATE TABLE match (
     tournament_id integer REFERENCES tournament(id) NOT NULL,
     player1 integer REFERENCES player(id) NOT NULL,
     player2 integer REFERENCES player(id) NOT NULL,
-    CONSTRAINT different CHECK (player1!=player2)
+    CONSTRAINT different CHECK (player1!=player2),
+    winner integer REFERENCES player(id),
+    CONSTRAINT winner in (player1 OR player2)
 );
-
-
-CREATE TABLE result (
-    match_id integer REFERENCES match(id) NOT NULL,
-    winner integer REFERENCES player(id) NOT NULL
-);
-
 
 -- players standings
 CREATE VIEW standings AS (
@@ -53,8 +56,8 @@ CREATE VIEW standings AS (
     FROM tournament AS t
       CROSS JOIN player AS p
       LEFT JOIN match AS m ON m.tournament_id=t.id AND p.id IN (m.player1, m.player2)
-      LEFT JOIN result AS w ON w.match_id=m.id AND w.winner=p.id
-      LEFT JOIN result AS l ON l.match_id=m.id AND l.winner!=p.id
+      LEFT JOIN match AS w ON w.id=m.id AND w.winner=p.id
+      LEFT JOIN match AS l ON l.id=m.id AND l.winner!=p.id
       LEFT JOIN match AS b ON b.id=m.id AND b.player2=NULL
     GROUP BY t.id, p.id
 );

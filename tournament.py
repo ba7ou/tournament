@@ -124,19 +124,12 @@ def reportMatch(t, p1, p2, w):
     clean_t = bleach.clean(t)
     clean_p1 = bleach.clean(p1)
     clean_p2 = bleach.clean(p2)
-    c.execute("""INSERT INTO match (tournament_id, player1, player2) VALUES (%(tournament)s, %(player1)s, %(player2)s)
-                returning id;""",
-                {'tournament': clean_t, 'player1': clean_p1, 'player2': clean_p2}
-             )
-    match_id = c.fetchone()[0]
-    clean_m = bleach.clean(match_id)
     clean_w = bleach.clean(w)
-    if w:
-        c.execute("""
-                insert into result (match_id, winner)
-                values(%(match_id)s, %(winner)s);""",
-                {'match_id': clean_m, 'winner': clean_w}
-                )
+    c.execute("""INSERT INTO match (tournament_id, player1, player2, winner) VALUES (%(tournament)s, %(player1)s, %(player2)s, %(winner)s)
+                returning id;""",
+                {'tournament': clean_t, 'player1': clean_p1, 'player2': clean_p2, 'winner' : clean_w}
+             )
+    id = c.fetchone()[0]
     pg.commit()
     pg.close()
 

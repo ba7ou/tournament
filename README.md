@@ -8,10 +8,8 @@ PostgreSQL Database storing game matches between players. A Python module manage
 
 ## Installation
 You need to setup an Unix environment with PostgreSQL 9.4.5 and Python 3.5.1
-* create PostgreSQL database Tournament
-`$psql tournament`
-* import tournament.sql `\i tournament.sql`
-* ctrl d to close psql
+* import PostgreSQL database Tournament
+`$psql -f tournament.sql`
 * run tournament.py `$python tournament.py`
 
 ## Tests
